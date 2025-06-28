@@ -31,8 +31,9 @@ function PizzaBlock({
                 <ul>
                     {types.map((type, index) => (
                         <li
+                            key={index}
                             className={activeType === index ? 'active' : ''}
-                            onClick={() => setActiveType(index)}
+                            onClick={() => setActiveType(type)}
                         >
                             {typesNames[type]}
                         </li>
@@ -41,6 +42,7 @@ function PizzaBlock({
                 <ul>
                     {sizes.map((size, index) => (
                         <li
+                            key={index}
                             className={activeSize === index ? 'active' : ''}
                             onClick={() => setActiveSize(index)}
                         >
