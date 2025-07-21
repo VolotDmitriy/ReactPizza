@@ -16,22 +16,45 @@ interface PizzaBlockProps {
 const Home = () => {
     const [items, setItems] = React.useState<PizzaBlockProps[]>([]);
     const [isLoading, setIsLoading] = React.useState(true);
+    const [sortValue, setSortValue] = React.useState(0);
+    const [activeCategory, setActiveCategory] = React.useState(0);
+
+    const options = [
+        { name: 'популярности', sortProperty: 'rating' },
+        { name: 'цене', sortProperty: 'price' },
+        { name: 'алфавиту', sortProperty: 'title' },
+    ];
 
     React.useEffect(() => {
-        fetch('http://localhost:5000/pizzas')
+        setIsLoading(true);
+        const category =
+            activeCategory !== 0 ? `?category=${activeCategory}&` : '?';
+
+        const sortBy = `_sort=${options[sortValue].sortProperty}`;
+
+        const url = `http://localhost:5000/pizzas${category}${sortBy}`;
+        console.log(url);
+        fetch(url)
             .then((res) => res.json())
             .then((json) => {
                 setItems(json);
                 setIsLoading(false);
             });
         window.scrollTo(0, 0);
-    }, []);
+    }, [activeCategory, sortValue]);
 
     return (
         <div className="container">
             <div className="content__top">
-                <Categories />
-                <Sort />
+                <Categories
+                    value={activeCategory}
+                    onClickCategory={setActiveCategory}
+                />
+                <Sort
+                    value={sortValue}
+                    onClickSort={setSortValue}
+                    options={options}
+                />
             </div>
             <h2 className="content__title">Все пиццы</h2>
             <div className="content__items">

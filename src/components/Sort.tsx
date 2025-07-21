@@ -1,14 +1,7 @@
 import * as React from 'react';
 
-function Sort() {
-    const options = [
-        { name: 'популярности', sortProperty: 'rating' },
-        { name: 'цене', sortProperty: 'price' },
-        { name: 'алфавиту', sortProperty: 'name' },
-    ];
-
+function Sort({ value, onClickSort, options }: any) {
     const [isVisible, setIsVisible] = React.useState(false);
-    const [activeOption, setActiveOption] = React.useState(0);
 
     return (
         <div className="sort">
@@ -43,7 +36,7 @@ function Sort() {
 
                 <b>Сортировка по:</b>
                 <span onClick={() => setIsVisible(!isVisible)}>
-                    {options[activeOption].name}
+                    {options[value].name}
                 </span>
             </div>
             {isVisible && (
@@ -53,12 +46,10 @@ function Sort() {
                             <li
                                 key={index}
                                 onClick={() => {
-                                    setActiveOption(index);
+                                    onClickSort(index);
                                     setIsVisible(false);
                                 }}
-                                className={
-                                    activeOption === index ? 'active' : ''
-                                }
+                                className={value === index ? 'active' : ''}
                             >
                                 {option.name}
                             </li>
