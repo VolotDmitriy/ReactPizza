@@ -1,6 +1,13 @@
 import * as React from 'react';
+import type { OptionsProps } from '../pages/Home.tsx';
 
-function Sort({ value, onClickSort, options }: any) {
+interface SortProps {
+    value: number;
+    onClickSort: React.Dispatch<React.SetStateAction<number>>;
+    options: OptionsProps[];
+}
+
+function Sort({ value, onClickSort, options }: SortProps) {
     const [isVisible, setIsVisible] = React.useState(false);
 
     return (
