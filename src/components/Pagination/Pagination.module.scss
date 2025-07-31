@@ -1,0 +1,56 @@
+.root {
+    display: flex;
+    flex-direction: row;
+    justify-content: start;
+    gap: 10px;
+
+    li {
+        min-width: 45px;
+        min-height: 45px;
+        width: 45px;
+        height: 45px;
+        border: 1px solid #fe5f1e;
+        border-radius: 100%;
+
+        a {
+            width: 100%;
+            height: 100%;
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            color: #fe5f1e;
+        }
+
+        &:active {
+            background: #fe5f1e;
+            color: #fff;
+
+            svg {
+                fill: #fff;
+            }
+        }
+    }
+}
+
+.selected {
+    background: #fe5f1e;
+}
+
+.selectedLink {
+    color: #fff !important;
+}
+
+.arrow {
+    width: 20px;
+    height: 20px;
+    fill: #fe5f1e;
+
+    &.next {
+    }
+
+    &.previous {
+        transform: rotate(180deg);
+    }
+}

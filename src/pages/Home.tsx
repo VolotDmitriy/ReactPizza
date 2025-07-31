@@ -1,5 +1,8 @@
 import * as React from 'react';
+import { useContext } from 'react';
+import { SearchContext } from '../App.tsx';
 import Categories from '../components/Categories.tsx';
+import Pagination from '../components/Pagination';
 import PizzaBlock from '../components/PizzaBlock/PizzaBlock.tsx';
 import Skeleton from '../components/PizzaBlock/Skeleton.tsx';
 import Sort from '../components/Sort.tsx';
@@ -19,11 +22,17 @@ export interface OptionsProps {
     sortOrder: 'asc' | 'desc';
 }
 
-const Home = ({ searchValue }: { searchValue: string }) => {
-    const [items, setItems] = React.useState<PizzaBlockProps[]>([]);
+const Home = () => {
+    const { searchValue } = useContext(SearchContext);
     const [isLoading, setIsLoading] = React.useState(true);
+
+    const [items, setItems] = React.useState<PizzaBlockProps[]>([]);
     const [sortValue, setSortValue] = React.useState(0);
     const [activeCategory, setActiveCategory] = React.useState(0);
+
+    const [currentPage, setCurrentPage] = React.useState(1);
+    const [itemsPerPage] = React.useState(4);
+    const [maxSize, setMaxSize] = React.useState(1);
 
     const options: OptionsProps[] = [
         {
@@ -49,30 +58,51 @@ const Home = ({ searchValue }: { searchValue: string }) => {
             sortOrder: 'desc',
         },
     ];
-    const getUrl = (): string => {
+    const getUrl = (page: number): string => {
         const category =
             activeCategory !== 0 ? `?category=${activeCategory}&` : '?';
         const sortBy = `_sort=${options[sortValue].sortProperty}`;
         const orderBy = `&_order=${options[sortValue].sortOrder}`;
         const filterItems = `${searchValue ? '&title_like=' + encodeURIComponent(searchValue) : ''}`;
 
-        const url = `http://localhost:5000/pizzas${category}${sortBy}${orderBy}${filterItems}`;
-        return url;
+        const pageParam = `&_page=${page}&_limit=${itemsPerPage}`;
+
+        return `http://localhost:5000/pizzas${category}${sortBy}${orderBy}${filterItems}${pageParam}`;
     };
+    const getMaxPage = (response: Response) => {
+        const countOfItems = response.headers.get('x-total-count');
+        if (countOfItems) {
+            const count = parseInt(countOfItems, 10);
+            const maxPages = Math.ceil(count / itemsPerPage);
+            setMaxSize(maxPages);
+        } else setMaxSize(1);
+    };
+
+    const url = React.useMemo(
+        () => getUrl(currentPage),
+        [currentPage, activeCategory, sortValue, searchValue],
+    );
+
+    React.useEffect(() => {
+        setCurrentPage(1);
+        console.log('Set current page to 1');
+    }, [activeCategory, searchValue, sortValue]);
 
     React.useEffect(() => {
         setIsLoading(true);
 
-        const url = getUrl();
-        console.log(url);
         fetch(url)
-            .then((res) => res.json())
+            .then((res) => {
+                getMaxPage(res);
+                return res.json();
+            })
             .then((json) => {
                 setItems(json);
                 setIsLoading(false);
             });
         window.scrollTo(0, 0);
-    }, [activeCategory, sortValue, searchValue]);
+        console.log('Make refresh page');
+    }, [url]);
 
     return (
         <div className="container">
@@ -90,11 +120,16 @@ const Home = ({ searchValue }: { searchValue: string }) => {
             <h2 className="content__title">Все пиццы</h2>
             <div className="content__items">
                 {isLoading
-                    ? [...Array(6)].map((_, index) => <Skeleton key={index} />)
+                    ? [...Array(4)].map((_, index) => <Skeleton key={index} />)
                     : items.map((pizza) => (
                           <PizzaBlock key={pizza.id} {...pizza} />
                       ))}
             </div>
+            <Pagination
+                currentPage={currentPage}
+                maxSize={maxSize}
+                setCurrentPage={setCurrentPage}
+            />
         </div>
     );
 };

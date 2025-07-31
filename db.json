@@ -99,6 +99,106 @@
             "price": 285,
             "category": 5,
             "rating": 7
+        },
+        {
+            "id": 10,
+            "imageUrl": "img/pizza.avif",
+            "title": "Гавайская",
+            "types": [0, 1],
+            "sizes": [26, 30, 40],
+            "price": 420,
+            "category": 3,
+            "rating": 8
+        },
+        {
+            "id": 11,
+            "imageUrl": "img/pizza.avif",
+            "title": "Мексиканская острая",
+            "types": [0],
+            "sizes": [26, 40],
+            "price": 350,
+            "category": 2,
+            "rating": 6
+        },
+        {
+            "id": 12,
+            "imageUrl": "img/pizza.avif",
+            "title": "Веганская делюкс 🌱",
+            "types": [0, 1],
+            "sizes": [26, 30, 40],
+            "price": 310,
+            "category": 5,
+            "rating": 7
+        },
+        {
+            "id": 13,
+            "imageUrl": "img/pizza.avif",
+            "title": "Мясной пир",
+            "types": [0, 1],
+            "sizes": [26, 30, 40],
+            "price": 650,
+            "category": 1,
+            "rating": 9
+        },
+        {
+            "id": 14,
+            "imageUrl": "img/pizza.avif",
+            "title": "Четыре сыра",
+            "types": [0, 1],
+            "sizes": [26, 30, 40],
+            "price": 480,
+            "category": 4,
+            "rating": 8
+        },
+        {
+            "id": 15,
+            "imageUrl": "img/pizza.avif",
+            "title": "Диабло",
+            "types": [0],
+            "sizes": [30, 40],
+            "price": 390,
+            "category": 2,
+            "rating": 5
+        },
+        {
+            "id": 16,
+            "imageUrl": "img/pizza.avif",
+            "title": "Морская",
+            "types": [0, 1],
+            "sizes": [26, 30, 40],
+            "price": 550,
+            "category": 3,
+            "rating": 7
+        },
+        {
+            "id": 17,
+            "imageUrl": "img/pizza.avif",
+            "title": "Грибная фантазия",
+            "types": [0, 1],
+            "sizes": [26, 30],
+            "price": 320,
+            "category": 5,
+            "rating": 6
+        },
+        {
+            "id": 18,
+            "imageUrl": "img/pizza.avif",
+            "title": "Баварская",
+            "types": [0, 1],
+            "sizes": [26, 30, 40],
+            "price": 460,
+            "category": 1,
+            "rating": 8
+        },
+        {
+            "id": 19,
+            "imageUrl": "img/pizza.avif",
+            "title": "Капричоза",
+            "types": [0, 1],
+            "sizes": [26, 30, 40],
+            "price": 430,
+            "category": 4,
+            "rating": 7
         }
     ]
 }
