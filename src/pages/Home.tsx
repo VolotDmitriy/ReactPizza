@@ -89,10 +89,6 @@ const Home = () => {
             setMaxSize(maxPages);
         } else setMaxSize(1);
     };
-    const url = React.useMemo(
-        () => getUrl(currentPage),
-        [currentPage, activeCategory, sortValue, searchValue],
-    );
 
     React.useEffect(() => {
         setCurrentPage(1);
@@ -100,7 +96,7 @@ const Home = () => {
 
     React.useEffect(() => {
         setIsLoading(true);
-
+        const url = getUrl(currentPage);
         fetch(url)
             .then((res) => {
                 getMaxPage(res);
@@ -111,7 +107,7 @@ const Home = () => {
                 setIsLoading(false);
             });
         window.scrollTo(0, 0);
-    }, [url]);
+    }, [currentPage, activeCategory, sortValue, searchValue]);
 
     return (
         <div className="container">
