@@ -1,11 +1,14 @@
 import * as React from 'react';
 import { useContext } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { SearchContext } from '../App.tsx';
 import Categories from '../components/Categories.tsx';
 import Pagination from '../components/Pagination';
 import PizzaBlock from '../components/PizzaBlock/PizzaBlock.tsx';
 import Skeleton from '../components/PizzaBlock/Skeleton.tsx';
 import Sort from '../components/Sort.tsx';
+import { setActiveCategory } from '../redux/slices/filterSlice.ts';
+import type { AppDispatch, RootState } from '../redux/store.ts';
 
 interface PizzaBlockProps {
     id: number;
@@ -22,42 +25,51 @@ export interface OptionsProps {
     sortOrder: 'asc' | 'desc';
 }
 
+const options: OptionsProps[] = [
+    {
+        name: 'популярности (возрастанию)',
+        sortProperty: 'rating',
+        sortOrder: 'asc',
+    },
+    {
+        name: 'популярности (убыванию)',
+        sortProperty: 'rating',
+        sortOrder: 'desc',
+    },
+    { name: 'цене (возрастанию)', sortProperty: 'price', sortOrder: 'asc' },
+    { name: 'цене (убыванию)', sortProperty: 'price', sortOrder: 'desc' },
+    {
+        name: 'алфавиту (возрастанию)',
+        sortProperty: 'title',
+        sortOrder: 'asc',
+    },
+    {
+        name: 'алфавиту (убыванию)',
+        sortProperty: 'title',
+        sortOrder: 'desc',
+    },
+];
+
 const Home = () => {
+    const activeCategory = useSelector(
+        (state: RootState) => state.filter.categoryId,
+    );
+    const dispatch: AppDispatch = useDispatch();
+
     const { searchValue } = useContext(SearchContext);
     const [isLoading, setIsLoading] = React.useState(true);
 
     const [items, setItems] = React.useState<PizzaBlockProps[]>([]);
     const [sortValue, setSortValue] = React.useState(0);
-    const [activeCategory, setActiveCategory] = React.useState(0);
 
     const [currentPage, setCurrentPage] = React.useState(1);
     const [itemsPerPage] = React.useState(4);
     const [maxSize, setMaxSize] = React.useState(1);
 
-    const options: OptionsProps[] = [
-        {
-            name: 'популярности (возрастанию)',
-            sortProperty: 'rating',
-            sortOrder: 'asc',
-        },
-        {
-            name: 'популярности (убыванию)',
-            sortProperty: 'rating',
-            sortOrder: 'desc',
-        },
-        { name: 'цене (возрастанию)', sortProperty: 'price', sortOrder: 'asc' },
-        { name: 'цене (убыванию)', sortProperty: 'price', sortOrder: 'desc' },
-        {
-            name: 'алфавиту (возрастанию)',
-            sortProperty: 'title',
-            sortOrder: 'asc',
-        },
-        {
-            name: 'алфавиту (убыванию)',
-            sortProperty: 'title',
-            sortOrder: 'desc',
-        },
-    ];
+    const onClickCategory = (id: number) => {
+        dispatch(setActiveCategory(id));
+    };
+
     const getUrl = (page: number): string => {
         const category =
             activeCategory !== 0 ? `?category=${activeCategory}&` : '?';
@@ -77,7 +89,6 @@ const Home = () => {
             setMaxSize(maxPages);
         } else setMaxSize(1);
     };
-
     const url = React.useMemo(
         () => getUrl(currentPage),
         [currentPage, activeCategory, sortValue, searchValue],
@@ -85,7 +96,6 @@ const Home = () => {
 
     React.useEffect(() => {
         setCurrentPage(1);
-        console.log('Set current page to 1');
     }, [activeCategory, searchValue, sortValue]);
 
     React.useEffect(() => {
@@ -101,7 +111,6 @@ const Home = () => {
                 setIsLoading(false);
             });
         window.scrollTo(0, 0);
-        console.log('Make refresh page');
     }, [url]);
 
     return (
@@ -109,7 +118,7 @@ const Home = () => {
             <div className="content__top">
                 <Categories
                     value={activeCategory}
-                    onClickCategory={setActiveCategory}
+                    onClickCategory={onClickCategory}
                 />
                 <Sort
                     value={sortValue}
