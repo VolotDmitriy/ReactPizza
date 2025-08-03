@@ -1,3 +1,4 @@
+import axios, { type AxiosResponse } from 'axios';
 import * as React from 'react';
 import { useContext } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -80,8 +81,8 @@ const Home = () => {
 
         return `http://localhost:5000/pizzas${category}${sortBy}${orderBy}${filterItems}${pageParam}`;
     };
-    const getMaxPage = (response: Response) => {
-        const countOfItems = response.headers.get('x-total-count');
+    const getMaxPage = (response: AxiosResponse) => {
+        const countOfItems = response.headers['x-total-count'];
         if (countOfItems) {
             const count = parseInt(countOfItems, 10);
             const maxPages = Math.ceil(count / itemsPerPage);
@@ -96,15 +97,11 @@ const Home = () => {
     React.useEffect(() => {
         setIsLoading(true);
         const url = getUrl(currentPage);
-        fetch(url)
-            .then((res) => {
-                getMaxPage(res);
-                return res.json();
-            })
-            .then((json) => {
-                setItems(json);
-                setIsLoading(false);
-            });
+        axios.get(url).then((res: AxiosResponse) => {
+            getMaxPage(res);
+            setItems(res.data);
+            setIsLoading(false);
+        });
         window.scrollTo(0, 0);
     }, [currentPage, activeCategory, sortValue, searchValue]);
 
