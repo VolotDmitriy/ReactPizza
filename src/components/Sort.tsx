@@ -1,13 +1,18 @@
 import * as React from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import type { OptionsProps } from '../pages/Home.tsx';
+import { setSort } from '../redux/slices/filterSlice.ts';
+import type { AppDispatch, RootState } from '../redux/store.ts';
 
 interface SortProps {
-    value: number;
-    onClickSort: React.Dispatch<React.SetStateAction<number>>;
     options: OptionsProps[];
 }
 
-function Sort({ value, onClickSort, options }: SortProps) {
+function Sort({ options }: SortProps) {
+    const selectedSortOptions = useSelector(
+        (state: RootState) => state.filter.sort,
+    );
+    const dispatch: AppDispatch = useDispatch();
     const [isVisible, setIsVisible] = React.useState(false);
 
     return (
@@ -43,7 +48,7 @@ function Sort({ value, onClickSort, options }: SortProps) {
 
                 <b>Сортировка по:</b>
                 <span onClick={() => setIsVisible(!isVisible)}>
-                    {options[value].name}
+                    {selectedSortOptions.name}
                 </span>
             </div>
             {isVisible && (
@@ -53,10 +58,14 @@ function Sort({ value, onClickSort, options }: SortProps) {
                             <li
                                 key={index}
                                 onClick={() => {
-                                    onClickSort(index);
+                                    dispatch(setSort(option));
                                     setIsVisible(false);
                                 }}
-                                className={value === index ? 'active' : ''}
+                                className={
+                                    selectedSortOptions === option
+                                        ? 'active'
+                                        : ''
+                                }
                             >
                                 {option.name}
                             </li>

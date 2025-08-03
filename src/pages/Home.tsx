@@ -54,13 +54,13 @@ const Home = () => {
     const activeCategory = useSelector(
         (state: RootState) => state.filter.categoryId,
     );
+    const sortValue = useSelector((state: RootState) => state.filter.sort);
     const dispatch: AppDispatch = useDispatch();
 
     const { searchValue } = useContext(SearchContext);
     const [isLoading, setIsLoading] = React.useState(true);
 
     const [items, setItems] = React.useState<PizzaBlockProps[]>([]);
-    const [sortValue, setSortValue] = React.useState(0);
 
     const [currentPage, setCurrentPage] = React.useState(1);
     const [itemsPerPage] = React.useState(4);
@@ -73,8 +73,8 @@ const Home = () => {
     const getUrl = (page: number): string => {
         const category =
             activeCategory !== 0 ? `?category=${activeCategory}&` : '?';
-        const sortBy = `_sort=${options[sortValue].sortProperty}`;
-        const orderBy = `&_order=${options[sortValue].sortOrder}`;
+        const sortBy = `_sort=${sortValue.sortProperty}`;
+        const orderBy = `&_order=${sortValue.sortOrder}`;
         const filterItems = `${searchValue ? '&title_like=' + encodeURIComponent(searchValue) : ''}`;
 
         const pageParam = `&_page=${page}&_limit=${itemsPerPage}`;
@@ -116,11 +116,7 @@ const Home = () => {
                     value={activeCategory}
                     onClickCategory={onClickCategory}
                 />
-                <Sort
-                    value={sortValue}
-                    onClickSort={setSortValue}
-                    options={options}
-                />
+                <Sort options={options} />
             </div>
             <h2 className="content__title">Все пиццы</h2>
             <div className="content__items">
