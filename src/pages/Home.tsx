@@ -51,10 +51,9 @@ const options: OptionsProps[] = [
 ];
 
 const Home = () => {
-    const activeCategory = useSelector(
-        (state: RootState) => state.filter.categoryId,
+    const { categoryId: activeCategory, sort: sortValue } = useSelector(
+        (state: RootState) => state.filter,
     );
-    const sortValue = useSelector((state: RootState) => state.filter.sort);
     const dispatch: AppDispatch = useDispatch();
 
     const { searchValue } = useContext(SearchContext);
