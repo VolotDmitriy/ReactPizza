@@ -1,14 +1,20 @@
 import axios, { type AxiosResponse } from 'axios';
+import qs from 'qs';
 import * as React from 'react';
 import { useContext } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import { SearchContext } from '../App.tsx';
 import Categories from '../components/Categories.tsx';
 import Pagination from '../components/Pagination';
 import PizzaBlock from '../components/PizzaBlock/PizzaBlock.tsx';
 import Skeleton from '../components/PizzaBlock/Skeleton.tsx';
 import Sort from '../components/Sort.tsx';
-import { setActiveCategory } from '../redux/slices/filterSlice.ts';
+import { options } from '../constants/Options.ts';
+import {
+    setActiveCategory,
+    setCurrentPage,
+} from '../redux/slices/filterSlice.ts';
 import type { AppDispatch, RootState } from '../redux/store.ts';
 
 interface PizzaBlockProps {
@@ -20,49 +26,19 @@ interface PizzaBlockProps {
     types: number[];
 }
 
-export interface OptionsProps {
-    name: string;
-    sortProperty: string;
-    sortOrder: 'asc' | 'desc';
-}
-
-const options: OptionsProps[] = [
-    {
-        name: 'популярности (возрастанию)',
-        sortProperty: 'rating',
-        sortOrder: 'asc',
-    },
-    {
-        name: 'популярности (убыванию)',
-        sortProperty: 'rating',
-        sortOrder: 'desc',
-    },
-    { name: 'цене (возрастанию)', sortProperty: 'price', sortOrder: 'asc' },
-    { name: 'цене (убыванию)', sortProperty: 'price', sortOrder: 'desc' },
-    {
-        name: 'алфавиту (возрастанию)',
-        sortProperty: 'title',
-        sortOrder: 'asc',
-    },
-    {
-        name: 'алфавиту (убыванию)',
-        sortProperty: 'title',
-        sortOrder: 'desc',
-    },
-];
-
 const Home = () => {
-    const { categoryId: activeCategory, sort: sortValue } = useSelector(
-        (state: RootState) => state.filter,
-    );
+    const {
+        categoryId: activeCategory,
+        sort: sortValue,
+        currentPage: currentPage,
+    } = useSelector((state: RootState) => state.filter);
+
+    const navigate = useNavigate();
     const dispatch: AppDispatch = useDispatch();
-
     const { searchValue } = useContext(SearchContext);
+
     const [isLoading, setIsLoading] = React.useState(true);
-
     const [items, setItems] = React.useState<PizzaBlockProps[]>([]);
-
-    const [currentPage, setCurrentPage] = React.useState(1);
     const [itemsPerPage] = React.useState(4);
     const [maxSize, setMaxSize] = React.useState(1);
 
@@ -71,15 +47,17 @@ const Home = () => {
     };
 
     const getUrl = (page: number): string => {
-        const category =
-            activeCategory !== 0 ? `?category=${activeCategory}&` : '?';
-        const sortBy = `_sort=${sortValue.sortProperty}`;
-        const orderBy = `&_order=${sortValue.sortOrder}`;
-        const filterItems = `${searchValue ? '&title_like=' + encodeURIComponent(searchValue) : ''}`;
+        const params: Record<string, string> = {
+            _sort: sortValue.sortProperty,
+            _order: sortValue.sortOrder,
+            _page: String(page),
+            _limit: String(itemsPerPage),
+        };
+        if (activeCategory !== 0) params.category = String(activeCategory);
+        if (searchValue) params.title_like = searchValue;
 
-        const pageParam = `&_page=${page}&_limit=${itemsPerPage}`;
-
-        return `http://localhost:5000/pizzas${category}${sortBy}${orderBy}${filterItems}${pageParam}`;
+        const queryString = new URLSearchParams(params).toString();
+        return `http://localhost:5000/pizzas?${queryString}`;
     };
     const getMaxPage = (response: AxiosResponse) => {
         const countOfItems = response.headers['x-total-count'];
@@ -91,7 +69,7 @@ const Home = () => {
     };
 
     React.useEffect(() => {
-        setCurrentPage(1);
+        dispatch(setCurrentPage(1));
     }, [activeCategory, searchValue, sortValue]);
 
     React.useEffect(() => {
@@ -103,6 +81,15 @@ const Home = () => {
             setIsLoading(false);
         });
         window.scrollTo(0, 0);
+    }, [currentPage, activeCategory, sortValue, searchValue]);
+
+    React.useEffect(() => {
+        const queryString = qs.stringify({
+            category: activeCategory,
+            _sort: sortValue.sortProperty,
+            _page: currentPage,
+        });
+        navigate(`?${queryString}`);
     }, [currentPage, activeCategory, sortValue, searchValue]);
 
     return (
@@ -125,7 +112,9 @@ const Home = () => {
             <Pagination
                 currentPage={currentPage}
                 maxSize={maxSize}
-                setCurrentPage={setCurrentPage}
+                setCurrentPage={(page: number) =>
+                    dispatch(setCurrentPage(page))
+                }
             />
         </div>
     );
