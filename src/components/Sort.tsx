@@ -1,6 +1,7 @@
 import * as React from 'react';
+import { useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import type { OptionsProps } from '../pages/Home.tsx';
+import type { OptionsProps } from '../constants/Options.ts';
 import { setSort } from '../redux/slices/filterSlice.ts';
 import type { AppDispatch, RootState } from '../redux/store.ts';
 
@@ -14,9 +15,25 @@ function Sort({ options }: SortProps) {
     );
     const dispatch: AppDispatch = useDispatch();
     const [isVisible, setIsVisible] = React.useState(false);
+    const clickHandler = useRef<HTMLDivElement>(null);
+    useOutsideClick(clickHandler);
+
+    function useOutsideClick(ref: React.RefObject<HTMLDivElement | null>) {
+        React.useEffect(() => {
+            function handleClickOutside(event: MouseEvent) {
+                if (ref.current && !ref.current.contains(event.target as Node))
+                    setIsVisible(false);
+            }
+
+            document.addEventListener('click', handleClickOutside);
+            return () => {
+                document.removeEventListener('click', handleClickOutside);
+            };
+        }, [ref]);
+    }
 
     return (
-        <div className="sort">
+        <div ref={clickHandler} className="sort">
             <div className="sort__label">
                 {isVisible ? (
                     <svg
