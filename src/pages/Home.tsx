@@ -11,20 +11,12 @@ import PizzaBlock from '../components/PizzaBlock/PizzaBlock.tsx';
 import Skeleton from '../components/PizzaBlock/Skeleton.tsx';
 import Sort from '../components/Sort.tsx';
 import { options } from '../constants/Options.ts';
+import type { IPizzaBlock } from '../constants/types&Interfaces.ts';
 import {
     setActiveCategory,
     setCurrentPage,
 } from '../redux/slices/filterSlice.ts';
 import type { AppDispatch, RootState } from '../redux/store.ts';
-
-interface PizzaBlockProps {
-    id: number;
-    title: string;
-    price: number;
-    imageUrl: string;
-    sizes: number[];
-    types: number[];
-}
 
 const Home = () => {
     const {
@@ -38,7 +30,7 @@ const Home = () => {
     const { searchValue } = useContext(SearchContext);
 
     const [isLoading, setIsLoading] = React.useState(true);
-    const [items, setItems] = React.useState<PizzaBlockProps[]>([]);
+    const [items, setItems] = React.useState<IPizzaBlock[]>([]);
     const [itemsPerPage] = React.useState(4);
     const [maxSize, setMaxSize] = React.useState(1);
 
