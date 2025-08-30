@@ -20,6 +20,7 @@ body {
 .content {
     display: flex;
     padding: 40px 0;
+    flex-direction: column;
 
     &__title {
         margin: 35px 0;
