@@ -1,4 +1,3 @@
-import axios, { type AxiosResponse } from 'axios';
 import qs from 'qs';
 import * as React from 'react';
 import { useContext } from 'react';
@@ -6,16 +5,17 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { SearchContext } from '../App.tsx';
 import Categories from '../components/Categories.tsx';
+import NotFoundBlock from '../components/NotFoundBlock';
 import Pagination from '../components/Pagination';
 import PizzaBlock from '../components/PizzaBlock/PizzaBlock.tsx';
 import Skeleton from '../components/PizzaBlock/Skeleton.tsx';
 import Sort from '../components/Sort.tsx';
 import { options } from '../constants/Options.ts';
-import type { IPizzaBlock } from '../constants/types&Interfaces.ts';
 import {
     setActiveCategory,
     setCurrentPage,
 } from '../redux/slices/filterSlice.ts';
+import { fetchPizzas } from '../redux/slices/pizzaSlice.ts';
 import type { AppDispatch, RootState } from '../redux/store.ts';
 
 const Home = () => {
@@ -24,15 +24,16 @@ const Home = () => {
         sort: sortValue,
         currentPage: currentPage,
     } = useSelector((state: RootState) => state.filter);
+    const {
+        items,
+        itemsPerPage,
+        totalCount: maxSize,
+        status,
+    } = useSelector((state: RootState) => state.pizza);
 
     const navigate = useNavigate();
     const dispatch: AppDispatch = useDispatch();
     const { searchValue } = useContext(SearchContext);
-
-    const [isLoading, setIsLoading] = React.useState(true);
-    const [items, setItems] = React.useState<IPizzaBlock[]>([]);
-    const [itemsPerPage] = React.useState(4);
-    const [maxSize, setMaxSize] = React.useState(1);
 
     const onClickCategory = (id: number) => {
         dispatch(setActiveCategory(id));
@@ -51,27 +52,10 @@ const Home = () => {
         const queryString = new URLSearchParams(params).toString();
         return `http://localhost:5000/pizzas?${queryString}`;
     };
-    const getMaxPage = (response: AxiosResponse) => {
-        const countOfItems = response.headers['x-total-count'];
-        if (countOfItems) {
-            const count = parseInt(countOfItems, 10);
-            const maxPages = Math.ceil(count / itemsPerPage);
-            setMaxSize(maxPages);
-        } else setMaxSize(1);
-    };
 
-    const fetchPizzas = async () => {
-        setIsLoading(true);
+    const getPizzas = async () => {
         const url = getUrl(currentPage);
-        try {
-            const res = await axios.get(url);
-            getMaxPage(res);
-            setItems(res.data);
-        } catch (err) {
-            console.log('Error fetch pizzas', err);
-        } finally {
-            setIsLoading(false);
-        }
+        dispatch(fetchPizzas(url));
 
         window.scrollTo(0, 0);
     };
@@ -81,7 +65,7 @@ const Home = () => {
     }, [activeCategory, searchValue, sortValue]);
 
     React.useEffect(() => {
-        fetchPizzas();
+        getPizzas();
     }, [currentPage, activeCategory, sortValue, searchValue]);
 
     React.useEffect(() => {
@@ -103,8 +87,11 @@ const Home = () => {
                 <Sort options={options} />
             </div>
             <h2 className="content__title">Все пиццы</h2>
+            {status === 'error' && (
+                <NotFoundBlock text={'Ошибка при загрузки пицц'} />
+            )}
             <div className="content__items">
-                {isLoading
+                {status === 'loading'
                     ? [...Array(4)].map((_, index) => <Skeleton key={index} />)
                     : items.map((pizza) => (
                           <PizzaBlock key={pizza.id} {...pizza} />
