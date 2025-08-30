@@ -60,19 +60,28 @@ const Home = () => {
         } else setMaxSize(1);
     };
 
+    const fetchPizzas = async () => {
+        setIsLoading(true);
+        const url = getUrl(currentPage);
+        try {
+            const res = await axios.get(url);
+            getMaxPage(res);
+            setItems(res.data);
+        } catch (err) {
+            console.log('Error fetch pizzas', err);
+        } finally {
+            setIsLoading(false);
+        }
+
+        window.scrollTo(0, 0);
+    };
+
     React.useEffect(() => {
         dispatch(setCurrentPage(1));
     }, [activeCategory, searchValue, sortValue]);
 
     React.useEffect(() => {
-        setIsLoading(true);
-        const url = getUrl(currentPage);
-        axios.get(url).then((res: AxiosResponse) => {
-            getMaxPage(res);
-            setItems(res.data);
-            setIsLoading(false);
-        });
-        window.scrollTo(0, 0);
+        fetchPizzas();
     }, [currentPage, activeCategory, sortValue, searchValue]);
 
     React.useEffect(() => {
