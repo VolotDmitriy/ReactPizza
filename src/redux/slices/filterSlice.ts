@@ -1,6 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 import qs from 'qs';
 import { options } from '../../constants/Options.ts';
+import type { RootState } from '../store.ts';
 
 const initialState = () => {
     if (window.location.search) {
@@ -14,6 +15,7 @@ const initialState = () => {
     }
 
     return {
+        searchValue: '',
         categoryId: 0,
         currentPage: 1,
         sort: {
@@ -31,6 +33,9 @@ const filterSlice = createSlice({
         setActiveCategory: (state, action) => {
             state.categoryId = action.payload;
         },
+        setSearchValue: (state, action) => {
+            state.searchValue = action.payload;
+        },
         setSort: (state, action) => {
             state.sort = action.payload;
         },
@@ -40,6 +45,9 @@ const filterSlice = createSlice({
     },
 });
 
-export const { setActiveCategory, setSort, setCurrentPage } =
+export const selectFilter = (state: RootState) => state.filter;
+export const selectFilterSort = (state: RootState) => state.filter.sort;
+
+export const { setActiveCategory, setSort, setCurrentPage, setSearchValue } =
     filterSlice.actions;
 export default filterSlice.reducer;

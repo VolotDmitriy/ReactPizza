@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { addToCart } from '../../redux/slices/cartSlice.ts';
-import type { AppDispatch, RootState } from '../../redux/store.ts';
+import { addToCart, selectCartItemById } from '../../redux/slices/cartSlice.ts';
+import type { AppDispatch } from '../../redux/store.ts';
 
 function PizzaBlock({
     id,
@@ -18,9 +18,7 @@ function PizzaBlock({
     sizes: number[];
     types: number[];
 }) {
-    const cartItem = useSelector((state: RootState) =>
-        state.cart.items.find((el) => el.item.id === id),
-    );
+    const cartItem = useSelector(selectCartItemById(id));
     const dispatch: AppDispatch = useDispatch();
     const [activeType, setActiveType] = React.useState(0);
     const [activeSize, setActiveSize] = React.useState(0);

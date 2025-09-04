@@ -1,9 +1,7 @@
 import qs from 'qs';
 import * as React from 'react';
-import { useContext } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { SearchContext } from '../App.tsx';
 import Categories from '../components/Categories.tsx';
 import NotFoundBlock from '../components/NotFoundBlock';
 import Pagination from '../components/Pagination';
@@ -12,28 +10,29 @@ import Skeleton from '../components/PizzaBlock/Skeleton.tsx';
 import Sort from '../components/Sort.tsx';
 import { options } from '../constants/Options.ts';
 import {
+    selectFilter,
     setActiveCategory,
     setCurrentPage,
 } from '../redux/slices/filterSlice.ts';
-import { fetchPizzas } from '../redux/slices/pizzaSlice.ts';
-import type { AppDispatch, RootState } from '../redux/store.ts';
+import { fetchPizzas, selectPizza } from '../redux/slices/pizzaSlice.ts';
+import type { AppDispatch } from '../redux/store.ts';
 
 const Home = () => {
     const {
         categoryId: activeCategory,
         sort: sortValue,
         currentPage: currentPage,
-    } = useSelector((state: RootState) => state.filter);
+        searchValue,
+    } = useSelector(selectFilter);
     const {
         items,
         itemsPerPage,
         totalCount: maxSize,
         status,
-    } = useSelector((state: RootState) => state.pizza);
+    } = useSelector(selectPizza);
 
     const navigate = useNavigate();
     const dispatch: AppDispatch = useDispatch();
-    const { searchValue } = useContext(SearchContext);
 
     const onClickCategory = (id: number) => {
         dispatch(setActiveCategory(id));
@@ -86,24 +85,32 @@ const Home = () => {
                 />
                 <Sort options={options} />
             </div>
-            <h2 className="content__title">Все пиццы</h2>
-            {status === 'error' && (
-                <NotFoundBlock text={'Ошибка при загрузки пицц'} />
+
+            {status === 'error' ? (
+                <NotFoundBlock text={'Ошибка при загрузке пицц'} />
+            ) : status === 'success' && items.length === 0 ? (
+                <NotFoundBlock text={'Пиццы не найдены'} />
+            ) : (
+                <>
+                    <h2 className="content__title">Все пиццы</h2>
+                    <div className="content__items">
+                        {status === 'loading'
+                            ? [...Array(4)].map((_, index) => (
+                                  <Skeleton key={index} />
+                              ))
+                            : items.map((pizza) => (
+                                  <PizzaBlock key={pizza.id} {...pizza} />
+                              ))}
+                    </div>
+                    <Pagination
+                        currentPage={currentPage}
+                        maxSize={maxSize}
+                        setCurrentPage={(page: number) =>
+                            dispatch(setCurrentPage(page))
+                        }
+                    />
+                </>
             )}
-            <div className="content__items">
-                {status === 'loading'
-                    ? [...Array(4)].map((_, index) => <Skeleton key={index} />)
-                    : items.map((pizza) => (
-                          <PizzaBlock key={pizza.id} {...pizza} />
-                      ))}
-            </div>
-            <Pagination
-                currentPage={currentPage}
-                maxSize={maxSize}
-                setCurrentPage={(page: number) =>
-                    dispatch(setCurrentPage(page))
-                }
-            />
         </div>
     );
 };

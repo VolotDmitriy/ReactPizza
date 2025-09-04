@@ -3,11 +3,11 @@ import { Link } from 'react-router-dom';
 import CartItem from '../components/CartItem';
 import NotFoundBlock from '../components/NotFoundBlock';
 import type { SizeVariant } from '../constants/types&Interfaces.ts';
-import { clearCart } from '../redux/slices/cartSlice.ts';
-import type { AppDispatch, RootState } from '../redux/store.ts';
+import { clearCart, selectCart } from '../redux/slices/cartSlice.ts';
+import type { AppDispatch } from '../redux/store.ts';
 
 const Cart = () => {
-    const { items, totalPrice } = useSelector((state: RootState) => state.cart);
+    const { items, totalPrice } = useSelector(selectCart);
     const dispatch: AppDispatch = useDispatch();
     const totalCount = items.reduce((acc, cur) => acc + cur.quantity, 0);
 

@@ -1,10 +1,10 @@
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-import type { RootState } from '../redux/store.ts';
+import { selectCart } from '../redux/slices/cartSlice.ts';
 import Search from './Search';
 
 function Header() {
-    const cart = useSelector((state: RootState) => state.cart);
+    const cart = useSelector(selectCart);
     const totalCount = cart.items.reduce((acc, cur) => acc + cur.quantity, 0);
 
     return (

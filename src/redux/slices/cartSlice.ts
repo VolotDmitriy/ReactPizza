@@ -1,5 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import type { ICartObjectProps } from '../../constants/types&Interfaces';
+import type { RootState } from '../store.ts';
 
 const initialState: ICartObjectProps = {
     totalPrice: 0,
@@ -70,6 +71,9 @@ const cartSlice = createSlice({
         },
     },
 });
+export const selectCart = (state: RootState) => state.cart;
+export const selectCartItemById = (id: number) => (state: RootState) =>
+    state.cart.items.find((el) => el.item.id === id);
 
 export const {
     addToCart,

@@ -2,17 +2,15 @@ import * as React from 'react';
 import { useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import type { OptionsProps } from '../constants/Options.ts';
-import { setSort } from '../redux/slices/filterSlice.ts';
-import type { AppDispatch, RootState } from '../redux/store.ts';
+import { selectFilterSort, setSort } from '../redux/slices/filterSlice.ts';
+import type { AppDispatch } from '../redux/store.ts';
 
 interface SortProps {
     options: OptionsProps[];
 }
 
 function Sort({ options }: SortProps) {
-    const selectedSortOptions = useSelector(
-        (state: RootState) => state.filter.sort,
-    );
+    const selectedSortOptions = useSelector(selectFilterSort);
     const dispatch: AppDispatch = useDispatch();
     const [isVisible, setIsVisible] = React.useState(false);
     const clickHandler = useRef<HTMLDivElement>(null);
