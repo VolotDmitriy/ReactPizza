@@ -1,13 +1,29 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import axios, { type AxiosResponse } from 'axios';
+import axios from 'axios';
 import type { IPizzaBlock } from '../../constants/types&Interfaces.ts';
 import type { RootState } from '../store.ts';
 
-const fetchPizzas = createAsyncThunk<AxiosResponse<IPizzaBlock[]>, string>(
+const fetchPizzas = createAsyncThunk<
+    {
+        items: IPizzaBlock[];
+        totalCount: number;
+    },
+    string,
+    { state: RootState }
+>(
     'pizza/fetchPizzasStatus',
-    async (url: string, { rejectWithValue }) => {
+    async (url: string, { rejectWithValue, getState }) => {
         try {
-            return await axios.get<IPizzaBlock[]>(url);
+            const response = await axios.get<IPizzaBlock[]>(url);
+            const { itemsPerPage } = getState().pizza;
+            const totalCount = Math.ceil(
+                parseInt(response.headers['x-total-count'] || '1', 10) /
+                    itemsPerPage,
+            );
+            return {
+                items: response.data,
+                totalCount,
+            };
         } catch (error) {
             console.log(error);
             return rejectWithValue('Failed to fetch pizzas');
@@ -41,14 +57,8 @@ const pizzaSlice = createSlice({
                 state.status = 'loading';
             })
             .addCase(fetchPizzas.fulfilled, (state, action) => {
-                state.items = action.payload.data;
-
-                const countOfItems = action.payload.headers['x-total-count'];
-                if (countOfItems) {
-                    const count = parseInt(countOfItems, 10);
-                    state.totalCount = Math.ceil(count / state.itemsPerPage);
-                } else state.totalCount = 1;
-
+                state.items = action.payload.items;
+                state.totalCount = action.payload.totalCount;
                 state.status = 'success';
             })
             .addCase(fetchPizzas.rejected, (state) => {
